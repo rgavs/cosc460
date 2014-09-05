@@ -51,9 +51,9 @@ public class TupleDesc implements Serializable {
      */
     private TDItem[] tdDesc;
     
-    public TupleDesc(Type[] typeAr, String[] fieldAr) throws Exception{
+    public TupleDesc(Type[] typeAr, String[] fieldAr) {
         if (typeAr.length != fieldAr.length){
-        	throw new Exception("Input args are of incompatable length.");
+        	throw new RuntimeException("Input args are of incompatable length.");
         }
     	tdDesc = new TDItem[typeAr.length];
         for (int i=0; i<tdDesc.length; i++){
@@ -174,11 +174,11 @@ public class TupleDesc implements Serializable {
     public boolean equals(Object o) {
     	if (o == null) {return false;}
     	TupleDesc td1 = (TupleDesc) o;
-    	if (! o.getClass().equals(this.getClass()) || this.numFields() != (td1.numFields()))
+    	if (o == null || ! o.getClass().equals(this.getClass()) || this.numFields() != (td1.numFields()))
         	{return false;}
         for (int i=0; i<this.numFields(); i++){
-        	if (! this.getFieldName(i).equals(td1.getFieldName(i)) || this.getFieldType(i).equals(td1.getFieldType(i)))
-        		{return false;}
+        	if (! this.getFieldName(i).equals(td1.getFieldName(i)) || ! this.getFieldType(i).equals(td1.getFieldType(i)))
+        		{ return false; }
         }
         return true;
     }

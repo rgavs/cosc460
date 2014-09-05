@@ -5,7 +5,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -19,13 +22,16 @@ import java.util.UUID;
  * @Threadsafe
  */
 public class Catalog {
-
+	
+	private Map<String, DbFile> table;
+	private Map<String, String> pFields;
     /**
      * Constructor.
      * Creates a new, empty catalog.
      */
     public Catalog() {
-        // some code goes here
+    	table = new HashMap<String, DbFile>();
+        pFields = new HashMap<String, String>();
     }
 
     /**
@@ -39,7 +45,12 @@ public class Catalog {
      *                  conflict exists, use the last table to be added as the table for a given name.
      */
     public void addTable(DbFile file, String name, String pkeyField) {
-        // some code goes here
+    	if (!table.containsKey(name)) {
+        	table.put(name, file);
+        }
+    	if (pkeyField != null && pkeyField != "")
+    		pFields.put(name, pkeyField);
+
     }
 
     public void addTable(DbFile file, String name) {
@@ -64,8 +75,9 @@ public class Catalog {
      * @throws NoSuchElementException if the table doesn't exist
      */
     public int getTableId(String name) throws NoSuchElementException {
-        // some code goes here
-        return 0;
+    	if (table.containsKey(name))
+    		{ return table.get(name).getId(); }
+    	else {throw new NoSuchElementException(name + " DNE in table."); }
     }
 
     /**
@@ -76,8 +88,11 @@ public class Catalog {
      * @throws NoSuchElementException if the table doesn't exist
      */
     public TupleDesc getTupleDesc(int tableid) throws NoSuchElementException {
-        // some code goes here
-        return null;
+        for (DbFile t : table.values()){
+        	if (t.getId() == tableid )
+        		return t.getTupleDesc();
+        }
+        throw new NoSuchElementException(tableid + " DNE in table.");
     }
 
     /**
@@ -88,30 +103,47 @@ public class Catalog {
      *                function passed to addTable
      */
     public DbFile getDatabaseFile(int tableid) throws NoSuchElementException {
-        // some code goes here
-        return null;
+    	for (DbFile t : table.values()){
+        	if (t.getId() == tableid )
+        		return t;
+        }
+        throw new NoSuchElementException(tableid + " DNE in table.");
     }
 
     public String getPrimaryKey(int tableid) {
-        // some code goes here
-        return null;
+    	String key = "";
+    	for (String name : table.keySet()) {
+        	if (table.get(name).getId() == tableid) {
+        		if (pFields.containsKey(name)) {
+        			return key = pFields.get(name);
+        		}
+        	}
+        }
+    	return key;
     }
 
     public Iterator<Integer> tableIdIterator() {
-        // some code goes here
-        return null;
+    	 List<Integer> list = new ArrayList<Integer>();
+         for (DbFile t : table.values()) {
+         	list.add(t.getId());
+         }
+         return list.iterator();
     }
 
     public String getTableName(int id) {
-        // some code goes here
-        return null;
+    	for (String key : table.keySet()) {
+        	if (table.get(key).getId() == id) {
+        		return key;
+        	}
+        } return null;
     }
 
     /**
      * Delete all tables from the catalog
      */
     public void clear() {
-        // some code goes here
+        table.clear();
+        pFields.clear();
     }
 
     /**
