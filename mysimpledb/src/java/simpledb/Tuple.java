@@ -1,8 +1,6 @@
 package simpledb;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Iterator;
 
 /**
  * Tuple maintains information about the contents of a tuple. Tuples have a
@@ -80,10 +78,15 @@ public class Tuple implements Serializable {
      * where \t is any whitespace, except newline
      */
     public String toString() {
-        for ( int i = 0; i < fields.length; i++){
-        	
+        String s = "";
+    	for ( int i = 0; i < fields.length; i++){
+    		if (Type.INT_TYPE.equals(fields[i].getType())) {
+        		s += ((IntField) fields[i]).getValue() + "\t";
+        	}
+    		else {
+        		s += ((StringField) fields[i]).getValue() + "\t";
+        	}
         }
-        throw new UnsupportedOperationException("Implement this");
+    	return s;
     }
-
 }
