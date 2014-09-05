@@ -1,8 +1,8 @@
 package simpledb;
 
-import java.io.*;
-
-import java.util.concurrent.ConcurrentHashMap;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.LinkedList;
 
 /**
  * BufferPool manages the reading and writing of pages into memory from
@@ -29,14 +29,16 @@ public class BufferPool {
      * constructor instead.
      */
     public static final int DEFAULT_PAGES = 50;
-
+    private int numPages;
+    private HashMap<Integer, Page> cachedPages;
     /**
      * Creates a BufferPool that caches up to numPages pages.
      *
      * @param numPages maximum number of pages in this buffer pool.
      */
-    public BufferPool(int numPages) {
-        // some code goes here
+    public BufferPool(int num) {
+        numPages = num;
+        cachedPages = new HashMap<Integer, Page>();
     }
 
     public static int getPageSize() {
