@@ -1,7 +1,6 @@
 package simpledb;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 /**
  * BufferPool manages the reading and writing of pages into memory from
@@ -28,16 +27,14 @@ public class BufferPool {
      * constructor instead.
      */
     public static final int DEFAULT_PAGES = 50;
-    private int numPages;
-    private HashMap<Integer, Page> cachedPages;
+    private Page[] cachedPages;
     /**
      * Creates a BufferPool that caches up to numPages pages.
      *
      * @param numPages maximum number of pages in this buffer pool.
      */
     public BufferPool(int num) {
-        numPages = num;
-        cachedPages = new HashMap<Integer, Page>();
+        cachedPages = new Page[num];
     }
 
     public static int getPageSize() {
@@ -66,8 +63,19 @@ public class BufferPool {
      */
     public Page getPage(TransactionId tid, PageId pid, Permissions perm)
             throws TransactionAbortedException, DbException {
-        // some code goes here
-        return null;
+        int j = 0;
+    	for(int i = 0; i < cachedPages.length; i++){
+        	if (cachedPages[i].getId().equals(pid)){
+        		return cachedPages[i];
+        	}
+        	if (cachedPages[i].getId()==null){
+        		j = i;
+        	}
+        }
+    	Catalog catalog = Database.getCatalog();
+    	DbFile dbfile = catalog.getDatabaseFile(pid.getTableId());
+    	cachedPages[j] = dbfile.readPage(pid);
+    	return cachedPages[j];
     }
 
     /**
