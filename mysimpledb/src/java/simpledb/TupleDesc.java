@@ -172,22 +172,22 @@ public class TupleDesc implements Serializable {
      * @return true if the object is equal to this TupleDesc.
      */
     public boolean equals(Object o) {
-    	if (o == null) {return false;}
-    	TupleDesc td1 = (TupleDesc) o;
-    	if (o == null || ! o.getClass().equals(this.getClass()) || this.numFields() != (td1.numFields()))
-        	{return false;}
-        for (int i=0; i<this.numFields(); i++){
-        	if (! this.getFieldName(i).equals(td1.getFieldName(i)) || ! this.getFieldType(i).equals(td1.getFieldType(i)))
-        		{ return false; }
+    	if (o == null) { return false; }
+    	TupleDesc td = (TupleDesc) o;
+    	if (this.getSize() != td.getSize()){ 	// case 1: same size
+    		return false;
+    	}
+        for (int i = 0; i < this.numFields(); i++){
+        	if ( ! ( this.getFieldType(i).equals(td.getFieldType(i)) ) ){
+        		return false;
+        	}
         }
         return true;
     }
 
     public int hashCode() {
-        // If you want to use TupleDesc as keys for HashMap, implement this so
-        // that equal objects have equals hashCode() results
-    	
-        throw new UnsupportedOperationException("unimplemented");
+    	String s = this.toString();
+    	return s.hashCode();
     }
 
     /**

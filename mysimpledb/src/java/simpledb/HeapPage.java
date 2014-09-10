@@ -5,7 +5,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
@@ -63,7 +65,6 @@ public class HeapPage implements Page {
             e.printStackTrace();
         }
         dis.close();
-
         setBeforeImage();
     }
 
@@ -219,7 +220,7 @@ public class HeapPage implements Page {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        
         return baos.toByteArray();
     }
 
@@ -285,16 +286,24 @@ public class HeapPage implements Page {
      * Returns the number of empty slots on this page.
      */
     public int getNumEmptySlots() {
-        // some code goes here
-        return 0;
+        int j = 0;
+    	for (int i = 0; i < numSlots; i++){
+        	if (! isSlotUsed(i))
+        		j++;
+        }
+    	return j;
     }
 
     /**
      * Returns true if associated slot on this page is filled.
      */
     public boolean isSlotUsed(int i) {
-        // some code goes here
-        return false;
+        int bit = i%8;
+        int byt = (int) Math.floor(i/8);
+    	if ((header[byt] & (int) Math.pow(2,bit)) != 1){
+    		return true;
+    	}
+    	return false;
     }
 
     /**
@@ -310,8 +319,13 @@ public class HeapPage implements Page {
      * (note that this iterator shouldn't return tuples in empty slots!)
      */
     public Iterator<Tuple> iterator() {
-        // some code goes here
-        return null;
+    	List<Integer> list = new ArrayList<Integer>();
+        for (int i = 0; i < numSlots; i++) {
+        	if (! isSlotUsed(i)){
+        		list.add();
+        	}
+        }
+        return list.iterator();
     }
 
 }
