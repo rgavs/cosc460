@@ -2,7 +2,6 @@ package simpledb;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.LinkedList;
 
 /**
  * BufferPool manages the reading and writing of pages into memory from

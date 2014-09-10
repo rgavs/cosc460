@@ -70,7 +70,6 @@ public class HeapPage implements Page {
     private int getNumTuples() {
         // some code goes here
         return 0;
-
     }
 
     /**
@@ -79,10 +78,8 @@ public class HeapPage implements Page {
      * @return the number of bytes in the header of a page in a HeapFile with each tuple occupying tupleSize bytes
      */
     private int getHeaderSize() {
-
         // some code goes here
         return 0;
-
     }
 
     /**

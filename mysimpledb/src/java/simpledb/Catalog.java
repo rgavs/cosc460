@@ -155,7 +155,8 @@ public class Catalog {
         String line = "";
         String baseFolder = new File(new File(catalogFile).getAbsolutePath()).getParent();
         try {
-            BufferedReader br = new BufferedReader(new FileReader(new File(catalogFile)));
+            @SuppressWarnings("resource")
+			BufferedReader br = new BufferedReader(new FileReader(new File(catalogFile)));
 
             while ((line = br.readLine()) != null) {
                 //assume line is of the format name (field type, field type, ...)
