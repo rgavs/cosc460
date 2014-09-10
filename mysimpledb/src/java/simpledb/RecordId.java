@@ -51,9 +51,9 @@ public class RecordId implements Serializable {
         	return false; 
         }
         RecordId rid = (RecordId) o;
-        if (pId == rid.pId && tupleNum == rid.tupleNum){
+        if (this.hashCode() == rid.hashCode()){
         	return true;
-        	}
+        }
         return false;
     }
 
