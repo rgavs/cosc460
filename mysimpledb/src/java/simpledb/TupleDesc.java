@@ -144,7 +144,7 @@ public class TupleDesc implements Serializable {
      * @param td2 The TupleDesc with the last fields of the TupleDesc
      * @return the new TupleDesc
      */
-    public static TupleDesc merge(TupleDesc td1, TupleDesc td2) throws Exception {
+    public static TupleDesc merge(TupleDesc td1, TupleDesc td2){
         Type[] newFields = new Type[td1.numFields() + td2.numFields()];
     	String[] newNames = new String[td1.numFields() + td2.numFields()];
         for (int i=0; i<td1.numFields(); i++){
@@ -155,12 +155,7 @@ public class TupleDesc implements Serializable {
     		newFields[i] = td2.getFieldType(i);
     		newNames[i] = td2.getFieldName(i);
     	}
-    	try {
-			return new TupleDesc(newFields,newNames);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-    	return null;
+		return new TupleDesc(newFields,newNames);
     }
 
     /**

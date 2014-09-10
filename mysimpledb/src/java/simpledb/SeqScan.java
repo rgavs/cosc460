@@ -25,7 +25,7 @@ public class SeqScan implements DbIterator {
      *                   tableAlias.null, or null.null).
      */
     public SeqScan(TransactionId tid, int tableid, String tableAlias) {
-        
+        // some code goes here
     }
 
     /**
