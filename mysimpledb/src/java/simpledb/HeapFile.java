@@ -1,7 +1,12 @@
 package simpledb;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.ArrayList;
 
 /**
  * HeapFile is an implementation of a DbFile that stores a collection of tuples
@@ -56,12 +61,24 @@ public class HeapFile implements DbFile {
      * @return TupleDesc of this DbFile.
      */
     public TupleDesc getTupleDesc() {
-        return ((DbFile) file).getTupleDesc();
+        return tD;
     }
 
     // see DbFile.java for javadocs
     public Page readPage(PageId pid) {
-        return ((DbFile) file).readPage(pid);
+        Reader input = null;
+		try {
+			input = new BufferedReader(new FileReader(file));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+        try {
+			input.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+        //input.
+    	return null;
     }
 
     // see DbFile.java for javadocs
@@ -74,7 +91,7 @@ public class HeapFile implements DbFile {
      * Returns the number of pages in this HeapFile.
      */
     public int numPages() {
-        // some code goes here
+        
         return 0;
     }
 
@@ -96,7 +113,8 @@ public class HeapFile implements DbFile {
 
     // see DbFile.java for javadocs
     public DbFileIterator iterator(TransactionId tid) {
-        // some code goes here
+        Database.getBufferPool();
+		int pageSize = BufferPool.PAGE_SIZE;
         return null;
     }
 }

@@ -193,6 +193,7 @@ public class Catalog {
                 addTable(tabHf, name, primaryKey);
                 System.out.println("Added table : " + name + " with schema " + t + (primaryKey.equals("")? "":(" key is " + primaryKey)));
             }
+            br.close();
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(0);

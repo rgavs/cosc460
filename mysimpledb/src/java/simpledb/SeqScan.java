@@ -10,7 +10,9 @@ import java.util.*;
 public class SeqScan implements DbIterator {
 
     private static final long serialVersionUID = 1L;
-
+    private TransactionId tId;
+    private int tableId;
+    private String table_Alias;
     /**
      * Creates a sequential scan over the specified table as a part of the
      * specified transaction.
@@ -25,7 +27,9 @@ public class SeqScan implements DbIterator {
      *                   tableAlias.null, or null.null).
      */
     public SeqScan(TransactionId tid, int tableid, String tableAlias) {
-        // some code goes here
+        tId = tid;
+        tableId = tableid;
+        table_Alias = tableAlias;
     }
 
     /**
@@ -33,7 +37,7 @@ public class SeqScan implements DbIterator {
      * be the actual name of the table in the catalog of the database
      */
     public String getTableName() {
-        // some code goes here
+        Database.getCatalog().getTableName(tableId);
         return null;
     }
 
@@ -41,8 +45,7 @@ public class SeqScan implements DbIterator {
      * @return Return the alias of the table this operator scans.
      */
     public String getAlias() {
-        // some code goes here
-        return null;
+        return table_Alias;
     }
 
     public SeqScan(TransactionId tid, int tableid) {

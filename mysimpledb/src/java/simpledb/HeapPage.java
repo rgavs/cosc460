@@ -310,13 +310,13 @@ public class HeapPage implements Page {
      * Abstraction to fill or clear a slot on this page.
      */
     private void markSlotUsed(int i, boolean value) {
-        int bit = i%8;
+        /*int bit = i%8;
         int byt = (int) Math.floor(i/8);
         if (value){
-        	
+        	tuples[byt].setField(bit, );;
         } else {
         	tuples[i] = null;
-        }
+        }*/
         // not necessary for lab1
     }
 
