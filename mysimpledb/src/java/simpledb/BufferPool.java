@@ -68,7 +68,7 @@ public class BufferPool {
         	if (cachedPages[i].getId().equals(pid)){
         		return cachedPages[i];
         	}
-        	if (cachedPages[i].getId()==null){
+        	if (cachedPages[i].getId() == null){
         		j = i;
         	}
         }

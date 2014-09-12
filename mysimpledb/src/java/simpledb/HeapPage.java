@@ -311,14 +311,6 @@ public class HeapPage implements Page {
      */
     private void markSlotUsed(int i, boolean value) {
     	return;
-        /*int bit = i%8;
-        int byt = (int) Math.floor(i/8);
-        if (value){
-        	tuples[byt].setField(bit, );;
-        } else {
-        	tuples[i] = null;
-        }*/
-        // not necessary for lab1
     }
 
     /**
