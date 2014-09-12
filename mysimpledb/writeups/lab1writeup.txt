@@ -5,21 +5,20 @@ After you complete lab 1, please answer the following questions.  For lab 1, the
 
 1. What is your name?  If you work with a partner, be sure to write both of your names.
 
-<Replace this text with your answer>
+<Ryan Gavigan. I worked with Mike Dunnegan and Mike Lese.>
 
 2. What did you think of this assignment?
 
-<Replace this text with your answer>
+<I thought this was very difficult. Largely due to gaps in my Java knowledge, along with various implementation troubles including the depth of hierarchies and abstraction of data through multiple files and objects.>
 
 3. What was the hardest part of this assignment?
 
-<Replace this text with your answer>
+<HeapFile methods: iterator() and getPage()- in that order>
 
 4. Describe any missing or incomplete elements of your code.
 
-<Replace this text with your answer>
+<I have experienced extreme difficulty with the HeapFile.iterator(). It still shows NullPointerException, that I cannot determine how to resolve, though it appears correct to me.>
 
 5. Roughly how long did you spend working on this lab?
 
-<Replace this text with your answer>
-
+<Aside from labs, at least 12 hours.>
