@@ -12,7 +12,7 @@ public class SeqScan implements DbIterator {
     private static final long serialVersionUID = 1L;
     private TransactionId tId;
     private int tableId;
-    private String table_Alias;
+    private String alias;
     private DbFileIterator myiterator;
     /**
      * Creates a sequential scan over the specified table as a part of the
@@ -30,7 +30,7 @@ public class SeqScan implements DbIterator {
     public SeqScan(TransactionId tid, int tableid, String tableAlias) {
         tId = tid;
         tableId = tableid;
-        table_Alias = tableAlias;
+        alias = tableAlias;
         myiterator = Database.getCatalog().getDatabaseFile(tableId).iterator(tId);
     }
 
@@ -47,7 +47,7 @@ public class SeqScan implements DbIterator {
      * @return Return the alias of the table this operator scans.
      */
     public String getAlias() {
-        return table_Alias;
+        return alias;
     }
 
     public SeqScan(TransactionId tid, int tableid) {
@@ -68,7 +68,16 @@ public class SeqScan implements DbIterator {
      * prefixed with the tableAlias string from the constructor.
      */
     public TupleDesc getTupleDesc() {
-        return Database.getCatalog().getTupleDesc(tableId);
+        TupleDesc tD = Database.getCatalog().getTupleDesc(tableId);
+        Type[] typeAr = new Type[tD.numFields()];
+    	for (int i = 0; i < typeAr.length; i++) {
+    		typeAr[i] = tD.getFieldType(i);
+    	}
+    	String[] fieldAr = new String[tD.numFields()];
+    	for (int i = 0; i < fieldAr.length; i++) {
+    		fieldAr[i] = alias + "." + tD.getFieldName(i);
+    	}
+        return new TupleDesc(typeAr, fieldAr);
     }
 
     public boolean hasNext() throws TransactionAbortedException, DbException {
