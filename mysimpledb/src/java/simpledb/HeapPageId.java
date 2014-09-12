@@ -55,7 +55,7 @@ public class HeapPageId implements PageId {
      */
     public boolean equals(Object o) {
         if (!(o instanceof HeapPageId)){
-        	return false; 
+        	return false;
         }
         HeapPageId hpi = (HeapPageId) o;
         if (tId == hpi.tId && pageNum == hpi.pageNum){

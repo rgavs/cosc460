@@ -148,7 +148,6 @@ public class HeapPage implements Page {
             e.printStackTrace();
             throw new NoSuchElementException("parsing error!");
         }
-
         return t;
     }
 
@@ -288,8 +287,9 @@ public class HeapPage implements Page {
     public int getNumEmptySlots() {
         int j = 0;
     	for (int i = 0; i < numSlots; i++){
-        	if (! isSlotUsed(i))
+        	if (! isSlotUsed(i)){
         		j++;
+        	}
         }
     	return j;
     }
@@ -298,9 +298,9 @@ public class HeapPage implements Page {
      * Returns true if associated slot on this page is filled.
      */
     public boolean isSlotUsed(int i) {
-        int bit = i%8;
+        int bit = i % 8;
         int byt = (int) Math.floor(i/8);
-    	if ((header[byt] & (int) Math.pow(2,bit)) != 1){
+    	if ((header[byt] & (int) Math.pow(2,bit)) != 0){
     		return true;
     	}
     	return false;
@@ -310,6 +310,7 @@ public class HeapPage implements Page {
      * Abstraction to fill or clear a slot on this page.
      */
     private void markSlotUsed(int i, boolean value) {
+    	return;
         /*int bit = i%8;
         int byt = (int) Math.floor(i/8);
         if (value){

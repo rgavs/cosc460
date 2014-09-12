@@ -1,12 +1,13 @@
 package simpledb;
 
-import java.io.BufferedReader;
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 
 /**
  * HeapFile is an implementation of a DbFile that stores a collection of tuples
@@ -66,18 +67,27 @@ public class HeapFile implements DbFile {
 
     // see DbFile.java for javadocs
     public Page readPage(PageId pid) {
-        Reader input = null;
-		try {
-			input = new BufferedReader(new FileReader(file));
+        InputStream input = null;
+		byte[] data;
+        try {
+			input = new BufferedInputStream(new FileInputStream(file));
+			data = new byte[BufferPool.PAGE_SIZE];
+			if (pid.pageNumber()>this.numPages()){
+				input.close();
+				throw new RuntimeException("Page number out of bounds.");
+			}
+			for (int i=0; i<pid.pageNumber();i++){
+				input.skip(BufferPool.PAGE_SIZE);
+			}
+			input.read(data);
+			input.close();
+			return new HeapPage((HeapPageId) pid, data);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-		}
-        try {
-			input.close();
+			return null;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-        //input.
     	return null;
     }
 
@@ -91,8 +101,7 @@ public class HeapFile implements DbFile {
      * Returns the number of pages in this HeapFile.
      */
     public int numPages() {
-        
-        return 0;
+        return (int) Math.floor(file.length()/BufferPool.PAGE_SIZE);
     }
 
     // see DbFile.java for javadocs
@@ -113,8 +122,36 @@ public class HeapFile implements DbFile {
 
     // see DbFile.java for javadocs
     public DbFileIterator iterator(TransactionId tid) {
-        Database.getBufferPool();
-		int pageSize = BufferPool.PAGE_SIZE;
-        return null;
+    	
+    	class HeapFileIterator implements DbFileIterator{
+    		private int currPage = 0;
+			@Override
+			public void open() throws DbException, TransactionAbortedException {
+				for (int i = 0; i < numPages(); i++){
+		    		Page p = new BufferPool.getPage(tid,(PageId) i, (Permissions) null);
+		    	}
+			}
+
+			@Override
+			public boolean hasNext(){
+				return currPage < numPages();
+			}
+
+			@Override
+			public Tuple next() throws DbException,
+					TransactionAbortedException, NoSuchElementException {
+				return null;
+			}
+
+			@Override
+			public void rewind() throws DbException,
+					TransactionAbortedException {
+			}
+
+			@Override
+			public void close() {
+				
+			}
+    	}
     }
 }
