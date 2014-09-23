@@ -10,10 +10,9 @@ import java.util.*;
 public class SeqScan implements DbIterator {
 
     private static final long serialVersionUID = 1L;
-    private TransactionId tId;
     private int tableId;
     private String alias;
-    private DbFileIterator myiterator;
+    private DbFileIterator iterator;
     /**
      * Creates a sequential scan over the specified table as a part of the
      * specified transaction.
@@ -28,10 +27,9 @@ public class SeqScan implements DbIterator {
      *                   tableAlias.null, or null.null).
      */
     public SeqScan(TransactionId tid, int tableid, String tableAlias) {
-        tId = tid;
         tableId = tableid;
         alias = tableAlias;
-        myiterator = Database.getCatalog().getDatabaseFile(tableId).iterator(tId);
+        iterator = Database.getCatalog().getDatabaseFile(tableId).iterator(tid);
     }
 
     /**
@@ -39,8 +37,7 @@ public class SeqScan implements DbIterator {
      * be the actual name of the table in the catalog of the database
      */
     public String getTableName() {
-        Database.getCatalog().getTableName(tableId);
-        return null;
+        return Database.getCatalog().getTableName(tableId);
     }
 
     /**
@@ -55,7 +52,7 @@ public class SeqScan implements DbIterator {
     }
 
     public void open() throws DbException, TransactionAbortedException {
-        myiterator.open();
+        iterator.open();
     }
 
     /**
@@ -69,32 +66,30 @@ public class SeqScan implements DbIterator {
      */
     public TupleDesc getTupleDesc() {
         TupleDesc tD = Database.getCatalog().getTupleDesc(tableId);
-        Type[] typeAr = new Type[tD.numFields()];
-    	for (int i = 0; i < typeAr.length; i++) {
-    		typeAr[i] = tD.getFieldType(i);
+        Type[] arr = new Type[tD.numFields()];
+        String[] fields = new String[tD.numFields()];
+    	for (int i = 0; i < arr.length; i++) {
+    		arr[i] = tD.getFieldType(i);
+    		fields[i] = alias + "." + tD.getFieldName(i);
     	}
-    	String[] fieldAr = new String[tD.numFields()];
-    	for (int i = 0; i < fieldAr.length; i++) {
-    		fieldAr[i] = alias + "." + tD.getFieldName(i);
-    	}
-        return new TupleDesc(typeAr, fieldAr);
+        return new TupleDesc(arr, fields);
     }
 
     public boolean hasNext() throws TransactionAbortedException, DbException {
-        return myiterator.hasNext();
+        return iterator.hasNext();
     }
 
     public Tuple next() throws NoSuchElementException,
             TransactionAbortedException, DbException {
-        return myiterator.next();
+        return iterator.next();
     }
 
     public void close() {
-        myiterator.close();
+        iterator.close();
     }
 
     public void rewind() throws DbException, NoSuchElementException,
             TransactionAbortedException {
-        myiterator.rewind();
+        iterator.rewind();
     }
 }

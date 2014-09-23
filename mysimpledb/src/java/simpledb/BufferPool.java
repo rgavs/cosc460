@@ -1,6 +1,7 @@
 package simpledb;
 
 import java.io.IOException;
+import java.util.LinkedList;
 
 /**
  * BufferPool manages the reading and writing of pages into memory from
@@ -27,14 +28,16 @@ public class BufferPool {
      * constructor instead.
      */
     public static final int DEFAULT_PAGES = 50;
-    private Page[] cachedPages;
+    private LinkedList<Page> cachedPages;
+    private int maxPages;
     /**
      * Creates a BufferPool that caches up to numPages pages.
      *
      * @param numPages maximum number of pages in this buffer pool.
      */
     public BufferPool(int num) {
-        cachedPages = new Page[num];
+        cachedPages = new LinkedList<Page>();
+        maxPages = num; 
     }
 
     public static int getPageSize() {
@@ -63,19 +66,20 @@ public class BufferPool {
      */
     public Page getPage(TransactionId tid, PageId pid, Permissions perm)
             throws TransactionAbortedException, DbException {
-        int j = 0;
-    	for(int i = 0; i < cachedPages.length; i++){
-        	if (cachedPages[i].getId().equals(pid)){
-        		return cachedPages[i];
-        	}
-        	if (cachedPages[i].getId() == null){
-        		j = i;
-        	}
+    	Page pg;
+    	for (Page p:cachedPages){
+    		if (p.getId().equals(pid)){
+    			cachedPages.remove();
+    			cachedPages.push(p);
+    			return cachedPages.element();
+    		}
+    	}
+        pg = Database.getCatalog().getDatabaseFile(pid.getTableId()).readPage(pid);
+        if (cachedPages.size()>maxPages){
+        	cachedPages.remove(maxPages-1);
         }
-    	Catalog catalog = Database.getCatalog();
-    	DbFile dbfile = catalog.getDatabaseFile(pid.getTableId());
-    	cachedPages[j] = dbfile.readPage(pid);
-    	return cachedPages[j];
+        cachedPages.push(pg);
+        return cachedPages.element();
     }
 
     /**
