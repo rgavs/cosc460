@@ -1,14 +1,17 @@
 package simpledb.systemtest;
 
-import static org.junit.Assert.*;
-
 import java.io.IOException;
-import java.util.Arrays;
+
+import junit.framework.Assert;
 
 import org.junit.Test;
 
-import junit.framework.Assert;
-import simpledb.*;
+import simpledb.Database;
+import simpledb.DbException;
+import simpledb.HeapFile;
+import simpledb.SeqScan;
+import simpledb.TransactionAbortedException;
+import simpledb.TransactionId;
 
 /**
  * Creates a heap file with 1024*500 tuples with two integer fields each.  Clears the buffer pool,

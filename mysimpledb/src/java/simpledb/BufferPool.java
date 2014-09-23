@@ -1,6 +1,7 @@
 package simpledb;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 /**
@@ -144,8 +145,12 @@ public class BufferPool {
      */
     public void insertTuple(TransactionId tid, int tableId, Tuple t)
             throws DbException, IOException, TransactionAbortedException {
-        // some code goes here
-        // not necessary for lab1
+        DbFile file = Database.getCatalog().getDatabaseFile(tableId);
+        ArrayList<Page> arr = file.insertTuple(tid, t);
+        for (Page page: arr) {
+        	page = this.getPage(tid, page.getId(), null);
+        	page.markDirty(true, tid);
+        }
     }
 
     /**
@@ -162,8 +167,8 @@ public class BufferPool {
      */
     public void deleteTuple(TransactionId tid, Tuple t)
             throws DbException, IOException, TransactionAbortedException {
-        // some code goes here
-        // not necessary for lab1
+    	((HeapPage)Database.getBufferPool().getPage(tid, t.getRecordId().getPageId(), null)).deleteTuple(t);
+    	Database.getBufferPool().getPage(tid, t.getRecordId().getPageId(), null).markDirty(true, tid);
     }
 
     /**
@@ -172,8 +177,11 @@ public class BufferPool {
      * break simpledb if running in NO STEAL mode.
      */
     public synchronized void flushAllPages() throws IOException {
-        // some code goes here
-        // not necessary for lab1
+        for (Page p:cachedPages){
+        	if (p.isDirty()!=null){
+        		flushPage(p.getId());
+        	}
+        }
 
     }
 
@@ -194,16 +202,26 @@ public class BufferPool {
      * @param pid an ID indicating the page to flush
      */
 	private synchronized void flushPage(PageId pid) throws IOException {
-        // some code goes here
-        // not necessary for lab1
+		DbFile file = Database.getCatalog().getDatabaseFile(pid.getTableId());
+		for (Page p:cachedPages){
+    		if (p.getId().equals(pid)){
+    			cachedPages.remove();
+    			cachedPages.push(p);
+    			file.writePage(cachedPages.element());
+    		}
+    	}
+		
     }
 
     /**
      * Write all pages of the specified transaction to disk.
      */
     public synchronized void flushPages(TransactionId tid) throws IOException {
-        // some code goes here
-        // not necessary for lab1|lab2|lab3|lab4                                                         // cosc460
+    	for (Page p:cachedPages){
+        	if (p.isDirty()==tid){
+        		flushPage(p.getId());
+        	}
+        }
     }
 
     /**
@@ -211,8 +229,12 @@ public class BufferPool {
      * Flushes the page to disk to ensure dirty pages are updated on disk.
      */
     private synchronized void evictPage() throws DbException {
-        // some code goes here
-        // not necessary for lab1
+        Page p = cachedPages.removeLast();
+        try {
+			flushPage(p.getId());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
     }
 
 }
