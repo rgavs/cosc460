@@ -3,33 +3,57 @@ Report for Lab 3
 
 Answer the questions from the lab description here.  Questions 8 and 9 do not require answers.
 
-1.
-2.
-3.
-4.
-5.
-6.
-7.
+1. SeqScan, TupleIterator, and Operator
+2. Aggregate, Delete, Filter, HashEquiJoin, Insert, Join, OrderBy, and Project.
+3. Join, Project, Select
+4. Without next or hasNext, Filter will simply take the super result as it extends Operator.
+5. 	while(iterR.hasNext()){
+		if (iterR.next().equals(predicate)){
+			return iterR.next();
+		}
+		iterR.next();
+	}
+	return null;
+6.	list [];
+	while(iterR.hasNext()){
+		t1 = iterR.next();
+		while(iterS.hasNext()){
+			t2 = iterS.next();
+			if (t1.equals(t2)){
+				t = merge(iterR.next(),iterS.next);
+				list.append(t);
+			}
+		}
+		iterS.rewind();
+	}
+	return list;
+7. if(iterR.hasNext()){
+		while(iterS.hasNext()){
+			if (iterR.next().equals(iterS.next)){
+				return merge(iterR.next(),iterS.next);
+			}
+		}
+		iterS.rewind();
+	}
 
 After you complete lab 3, please answer the following questions.  
 
 1. What is your name?  If you work with a partner, be sure to write both of your names.
 
-<Replace this text with your answer>
+Ryan Gavigan. Worked with Mike Dunnegan.
 
 2. What did you think of this assignment?
 
-<Replace this text with your answer>
+I have found this to be rather challenging, though I am pleased to have Lab 2 all but finished.
 
 3. What was the hardest part of this assignment?
 
-<Replace this text with your answer>
+Hardest part so far is likely within HeapPage, HeapFile or BufferPool. I have struggled with I/O.
 
 4. Describe any missing or incomplete elements of your code.
 
-<Replace this text with your answer>
+I have an assertion error on testCache from ScanTest.java- having difficulty debugging.
 
 5. Roughly how long did you spend working on this lab?
 
-<Replace this text with your answer>
-
+I have likely spent roughly two full days or more of work.
