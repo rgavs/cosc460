@@ -77,7 +77,7 @@ public class Catalog {
     public int getTableId(String name) throws NoSuchElementException {
     	if (table.containsKey(name))
     		{ return table.get(name).getId(); }
-    	else {throw new NoSuchElementException(name + " DNE in table."); }
+    	else { throw new NoSuchElementException(name + " DNE in table."); }
     }
 
     /**

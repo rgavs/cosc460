@@ -2,7 +2,6 @@ package simpledb;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 /**
  * BufferPool manages the reading and writing of pages into memory from
@@ -29,7 +28,8 @@ public class BufferPool {
      * constructor instead.
      */
     public static final int DEFAULT_PAGES = 50;
-    private LinkedList<Page> cachedPages;
+    private ArrayList<Page> cachedPages;
+    private ArrayList<Long> timeSinceUse;
     private int maxPages;
     /**
      * Creates a BufferPool that caches up to numPages pages.
@@ -37,8 +37,9 @@ public class BufferPool {
      * @param numPages maximum number of pages in this buffer pool.
      */
     public BufferPool(int num) {
-        cachedPages = new LinkedList<Page>();
-        maxPages = num; 
+        cachedPages = new ArrayList<Page>();
+        timeSinceUse = new ArrayList<Long>();
+        maxPages = num;
     }
 
     public static int getPageSize() {
@@ -67,20 +68,20 @@ public class BufferPool {
      */
     public Page getPage(TransactionId tid, PageId pid, Permissions perm)
             throws TransactionAbortedException, DbException {
-    	Page pg;
-    	for (Page p:cachedPages){
-    		if (p.getId().equals(pid)){
-    			cachedPages.remove();
-    			cachedPages.push(p);
-    			return cachedPages.element();
+    	for (int i = 0; i<cachedPages.size();i++){
+    		if (cachedPages.get(i).getId().equals(pid)){
+    			timeSinceUse.set(i, (long) 0);
+    			return cachedPages.get(i);
     		}
     	}
-        pg = Database.getCatalog().getDatabaseFile(pid.getTableId()).readPage(pid);
-        if (cachedPages.size()>maxPages){
-        	cachedPages.remove(maxPages-1);
+        // If page not in BufferPool
+    	if (cachedPages.size() >= maxPages){
+        	evictPage();
         }
-        cachedPages.push(pg);
-        return cachedPages.element();
+    	HeapPage p = (HeapPage) Database.getCatalog().getDatabaseFile(pid.getTableId()).readPage(pid);
+    	cachedPages.add(p);
+    	timeSinceUse.add(System.currentTimeMillis());
+        return p;
     }
 
     /**
@@ -145,11 +146,12 @@ public class BufferPool {
      */
     public void insertTuple(TransactionId tid, int tableId, Tuple t)
             throws DbException, IOException, TransactionAbortedException {
-        DbFile file = Database.getCatalog().getDatabaseFile(tableId);
-        ArrayList<Page> arr = file.insertTuple(tid, t);
-        for (Page page: arr) {
-        	page = this.getPage(tid, page.getId(), null);
-        	page.markDirty(true, tid);
+    	ArrayList<Page> arr = Database.getCatalog().getDatabaseFile(tableId).insertTuple(tid, t);
+    	arr.get(0).markDirty(true, tid);
+    	for (int i = 0; i<cachedPages.size();i++) {
+        	if (cachedPages.get(i).getId().equals(arr.get(0).getId())){
+    			cachedPages.set(i, arr.get(0));
+    		}
         }
     }
 
@@ -167,8 +169,17 @@ public class BufferPool {
      */
     public void deleteTuple(TransactionId tid, Tuple t)
             throws DbException, IOException, TransactionAbortedException {
-    	((HeapPage)Database.getBufferPool().getPage(tid, t.getRecordId().getPageId(), null)).deleteTuple(t);
-    	Database.getBufferPool().getPage(tid, t.getRecordId().getPageId(), null).markDirty(true, tid);
+    	int tableId = t.getRecordId().getPageId().getTableId();
+    	int i = 0;
+    	for (Page p : cachedPages){
+    		if (p.getId().getTableId() == tableId){
+    			// mark dirty
+    			p.markDirty(true, tid);
+    			cachedPages.remove(t);
+    			timeSinceUse.set(i, (long) 0);
+    		}
+    		i++;
+    	}
     }
 
     /**
@@ -178,11 +189,8 @@ public class BufferPool {
      */
     public synchronized void flushAllPages() throws IOException {
         for (Page p:cachedPages){
-        	if (p.isDirty()!=null){
-        		flushPage(p.getId());
-        	}
+        	flushPage(p.getId());
         }
-
     }
 
     /**
@@ -203,25 +211,21 @@ public class BufferPool {
      */
 	private synchronized void flushPage(PageId pid) throws IOException {
 		DbFile file = Database.getCatalog().getDatabaseFile(pid.getTableId());
-		for (Page p:cachedPages){
-    		if (p.getId().equals(pid)){
-    			cachedPages.remove();
-    			cachedPages.push(p);
-    			file.writePage(cachedPages.element());
+		Page flush = null;
+		for (int i = 0; i < cachedPages.size();i++){
+    		if (cachedPages.get(i).getId().equals(pid)){
+    			flush = cachedPages.get(i);
+    			file.writePage(cachedPages.get(i));
+    			flush.markDirty(false, new TransactionId());
     		}
     	}
-		
     }
 
     /**
      * Write all pages of the specified transaction to disk.
      */
     public synchronized void flushPages(TransactionId tid) throws IOException {
-    	for (Page p:cachedPages){
-        	if (p.isDirty()==tid){
-        		flushPage(p.getId());
-        	}
-        }
+    	
     }
 
     /**
@@ -229,9 +233,17 @@ public class BufferPool {
      * Flushes the page to disk to ensure dirty pages are updated on disk.
      */
     private synchronized void evictPage() throws DbException {
-        Page p = cachedPages.removeLast();
+    	int lru = 0;
+    	for (int i = 0; i<cachedPages.size();i++){
+    		if (timeSinceUse.get(i) > timeSinceUse.get(lru)){
+    			lru = i;
+    		}
+    	}
+        HeapPage p = (HeapPage) cachedPages.get(lru);
         try {
 			flushPage(p.getId());
+			cachedPages.remove(p);
+			System.out.println("Page has been flushed");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

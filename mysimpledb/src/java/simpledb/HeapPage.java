@@ -278,16 +278,16 @@ public class HeapPage implements Page {
     	if (getNumEmptySlots()==0){
     		throw new DbException("No empty slots in this page.");
     	}
-    	if (! td.equals(t.getTupleDesc())){
-    		throw new DbException("Invalid TupleDesc.");
+    	if (!td.equals(t.getTupleDesc())){
+    		throw new RuntimeException("Invalid TupleDesc.");
     	}
-    	for (int i = 0; i <numSlots; i++){
-        	if (!isSlotUsed(i)){
-        		tuples[i]=t;
-        		markSlotUsed(i,true);
-        	}
-        }
-    	
+    	int pageNum = 0;
+    	while(isSlotUsed(pageNum)){
+    		pageNum++;
+    	}
+    	tuples[pageNum]=t;
+    	t.setRecordId(new RecordId(pid, pageNum));
+    	markSlotUsed(pageNum, true);
     }
 
     /**
@@ -355,7 +355,7 @@ public class HeapPage implements Page {
      */
     public Iterator<Tuple> iterator() {
     	LinkedList<Tuple> list = new LinkedList<Tuple>();
-        for (int i = 0; i < numSlots; i++) {
+    	for (int i = 0; i < numSlots; i++) {
         	if (isSlotUsed(i)){
         		list.add(tuples[i]);
         	}

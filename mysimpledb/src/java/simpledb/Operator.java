@@ -8,13 +8,17 @@ import java.util.NoSuchElementException;
  * <code>open</code> and <code>readNext</code>.
  */
 public abstract class Operator implements DbIterator {
-
+	
+	 private Tuple next = null;
+	 private boolean open = false;
+	 private int estimatedCardinality = 0;
+	
     private static final long serialVersionUID = 1L;
 
     public boolean hasNext() throws DbException, TransactionAbortedException {
-        if (!this.open)
+        if (!this.open){
             throw new IllegalStateException("Operator not yet open");
-
+        }
         if (next == null)
             next = fetchNext();
         return next != null;
@@ -53,10 +57,6 @@ public abstract class Operator implements DbIterator {
         next = null;
         this.open = false;
     }
-
-    private Tuple next = null;
-    private boolean open = false;
-    private int estimatedCardinality = 0;
 
     public void open() throws DbException, TransactionAbortedException {
         this.open = true;
